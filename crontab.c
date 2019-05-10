@@ -99,9 +99,6 @@ void* doSomeThing(void *arg)
 
     while(1)
     {
-        char lala[1000]="/home/gede/efpe/lala";
-        mkdir(lala, 0777);
-
         time_t now;
         time(&now);
         
@@ -181,8 +178,6 @@ void* doSomeThing(void *arg)
 void buat_thread(char *filenya, int n)
 {
     pthread_create(&(tid[n]), NULL, &doSomeThing, filenya);
-    char yeay[1000]="/home/gede/efpe/yeay";
-    mkdir(yeay, 0777);
 }
 
 void baca_isi()
@@ -268,16 +263,11 @@ int main() {
     close(STDERR_FILENO);
 
     while(1) {
-        char lalp[1000]="/home/gede/efpe/lalp";
-        mkdir(lalp, 0777);
-        
         stat(filename, &sb);
         printf("--%ld--%ld\n", gettime, sb.st_mtime);
     
         if(gettime<sb.st_mtime)
         {
-            char lals[1000]="/home/gede/efpe/lals";
-            mkdir(lals, 0777);
             gettime=sb.st_mtime;
             sleep(1);
 
