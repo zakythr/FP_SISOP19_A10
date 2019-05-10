@@ -11,6 +11,7 @@
 
 pthread_t tid[1000];
 char filename[1000]="/home/gede/efpe/crontab.data";
+int seq=0;
 
 void* doSomeThing(void *arg)
 {
@@ -203,7 +204,6 @@ void baca_isi()
     char semen[1000];
     sprintf(semen, "%s", lama);
 	char *ptr = strtok(semen, delim);
-    int seq=0;
 
     while(ptr != NULL)
     {
@@ -230,7 +230,6 @@ int main() {
     struct stat sb;
     long int gettime;
     
-    int seq=0;
     stat(filename, &sb);
     gettime=sb.st_mtime;
 
@@ -275,7 +274,7 @@ int main() {
             {
                 kensel_thread(ii);
             }
-
+            seq=0;
             baca_isi();
             printf("yeay\n");
         }
