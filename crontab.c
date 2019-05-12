@@ -1,3 +1,4 @@
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
@@ -9,277 +10,200 @@
 #include <string.h>
 #include <pthread.h>
 
-pthread_t tid[1000];
-char filename[1000]="/home/gede/efpe/crontab.data";
-int seq=0;
+char filename[200]="/home/zaky/Final_Project/crontab.data";
 
-void* doSomeThing(void *arg)
+void *MembacaCrontab(void *arg)
 {
-    char kk[1000], delim[]=" ";
-    sprintf(kk, "%s", (char*)arg);
-    int menit=-1, jam=-1, hari=-1, bulan=-1, harii=-1;
-    int menit2=-1, jam2=-1, hari2=-1, bulan2=-1, harii2=-1;
-    char perintah[1000];
-    char *hasil[1000];
-    char *command;
-    int hu=0;
+	char nampung[200];
+	sprintf(nampung, "%s", (char*)arg);
 
-    char *ptr = strtok(kk, delim);
+	char *memisah = strtok(nampung, " ");	 	//strtok adalah membagi string menjadi beberapa bagian yang dibatasi oleh karakter yang telah ditentukan
+	int bulan=-1, hari=-1, tgl=-1, jam=-1, menit=-1;
+	int flag_menit=1, flag_jam=1, flag_tgl=1, flag_bulan=1, flag_hari=1;
 
-    if(strcmp(ptr, "*")!=0)
-    {
-        menit=atoi(ptr);
-        if((menit==0 && strcmp(ptr, "0")!=0) || (menit>59 || menit<0))
-        {
-            return NULL;
-        }
-    }
-
-    ptr = strtok(NULL, delim);
-    if(strcmp(ptr, "*")!=0)
-    {
-        jam=atoi(ptr);
-        if((jam==0 && strcmp(ptr, "0")!=0)||(jam>23 || jam<0))
-        {
-            return NULL;
-        }
-    }
-
-    ptr = strtok(NULL, delim);
-    if(strcmp(ptr, "*")!=0)
-    {
-        hari=atoi(ptr);
-        if(hari==0 && strcmp(ptr, "0")!=0)
-        {
-            return NULL;
-        }
-    }
-
-    ptr = strtok(NULL, delim);
-    if(strcmp(ptr, "*")!=0)
-    {
-        bulan=atoi(ptr);
-        if((bulan==0 && strcmp(ptr, "0")!=0) || (bulan<1 || bulan>12))
-        {
-            return NULL;
-        }
-    }
-
-    ptr = strtok(NULL, delim);
-    if(strcmp(ptr, "*")!=0)
-    {
-        harii=atoi(ptr);
-        
-        if((harii==0 && strcmp(ptr, "0")!=0) || (harii>6 || harii<0))
-        {
-            return NULL;
-        }
-    }
-
-    ptr = strtok(NULL, delim);
-    sprintf(perintah, "%s", ptr);
-    char perintah2[1000];
-    sprintf(perintah2, "%s", perintah);
-    command=strrchr(perintah2, '/');
-    for(int cc=0; cc<strlen(command); cc++)
+	if(strcmp(memisah, "*")!=0)
 	{
-		command[cc]=command[cc+1];
+		menit=atoi(memisah);		//lalu mengubah string, angka menjadi sebuah  bilangan numerik integer
+		if((strcmp(memisah, "0")!=0) && menit==0 || (menit>59 || menit<0)) return NULL;
 	}
-    hasil[hu]=command;
-    hu++;
-    while (ptr != NULL)
-    {
-        if(hu!=1)
-        {
-            hasil[hu-1]=ptr;
-        }
-        hu++;
-        ptr = strtok(NULL, delim);
-    }
-    hu--;
 
-    while(1)
-    {
-        time_t now;
-        time(&now);
-        
-        struct tm *local = localtime(&now);
+	memisah = strtok(NULL, " "); 
+	if(strcmp(memisah, "*")!=0)
+	{
+		jam=atoi(memisah);
+		if((strcmp(memisah, "0")!=0) && jam==0 || (jam>23 || jam<0)) return NULL;
+	}
 
-        if(menit != -1)
-        {
-            if(menit==local->tm_min)
-            {
-                menit2=1;
-            }
-            else
-            {
-                menit2=0;
-            }
-        }
-        if(jam != -1)
-        {
-            if(jam==local->tm_hour)
-            {
-                jam2=1;
-            }
-            else
-            {
-                jam2=0;
-            }
-        }
-        if(hari != -1)
-        {
-            if(hari==local->tm_mday)
-            {
-                hari2=1;
-            }
-            else
-            {
-                hari2=0;
-            }
-        }
-        if(bulan != -1)
-        {
-            if(bulan==local->tm_mon+1)
-            {
-                bulan2=1;
-            }
-            else
-            {
-                bulan2=0;
-            }
-        }
-        if(harii != -1)
-        {
-            if(harii==local->tm_wday)
-            {
-                harii2=1;
-            }
-            else
-            {
-                harii2=0;
-            }
-        }
+	memisah = strtok(NULL, " "); 
+	if(strcmp(memisah, "*")!=0)
+	{
+		tgl=atoi(memisah);
+		if(tgl==0 && (strcmp(memisah, "0")!=0)) return NULL;
+	}
 
-        if(menit2!=0 && jam2!=0 && hari2!=0 && bulan2!=0 && harii2!=0 && local->tm_sec==0)
-        {
-            pid_t child;
-            child=fork();
-            if(child==0)
-            {
-                execv(perintah, hasil);
-            }
-            sleep(1);
-        }
-        sleep(1);
-    }
-    return NULL;
+	memisah = strtok(NULL, " "); 
+	if(strcmp(memisah, "*")!=0)
+	{
+		bulan=atoi(memisah);
+		if((strcmp(memisah, "0")!=0) && bulan==0 || (bulan>12 || bulan<1)) return NULL;
+	}
+
+	memisah = strtok(NULL, " "); 
+	if(strcmp(memisah, "*")!=0)
+	{
+		hari=atoi(memisah);
+		if((strcmp(memisah, "0")!=0) && hari==0 || (hari>6 || hari<0)) return NULL;
+	}
+
+	char crontab[200];
+	char *hasil[200];
+	char *dirpath;
+	memisah = strtok(NULL, " ");
+	sprintf(crontab, "%s", memisah);
+	char crontab_path[200];
+	int h=0;
+	sprintf(crontab_path, "%s", crontab);
+	dirpath=strrchr(crontab_path, '/');
+
+	for(int i=0; i<strlen(dirpath); i++)
+	{
+		dirpath[i]=dirpath[i+1];
+	}
+
+	hasil[h]=dirpath;
+	h+=1;
+
+	while (memisah != NULL)
+	{
+		if(h!=1)
+		{
+			hasil[h-1]=memisah;
+		}
+		h+=1;
+		memisah = strtok(NULL, " ");
+	}
+
+	h-=1;
+
+	char menjalankan[500];
+	sprintf(menjalankan, "%s %s\n", hasil[0], hasil[1]);
+	for(int j=1; j<h; j++)
+	{
+		sprintf(menjalankan, "%s %s", menjalankan, hasil[j]);
+	}
+
+	while(1)
+	{
+		time_t now;
+		time(&now);
+		struct tm *local = localtime(&now);
+
+		if(menit != -1)
+		{
+			if(menit==local->tm_min) flag_menit=-1;
+			else flag_menit=0;
+		}
+
+		if(jam != -1)
+		{
+			if(jam==local->tm_hour) flag_jam=-1;
+			else flag_jam=0;
+		}
+
+		if(tgl != -1)
+		{
+			if(tgl==local->tm_mday) flag_tgl=-1;
+			else flag_tgl=0;
+		}
+
+		if(bulan != -1)
+		{
+			if(bulan==local->tm_mon+1) flag_bulan=-1;
+			else flag_bulan=0;
+		}
+
+		if(hari != -1)
+		{
+			if(hari==local->tm_wday) flag_hari=-1;
+			else flag_hari=0;
+		}
+		printf("%s\n",menjalankan);
+		if(flag_bulan!=0 && flag_hari!=0 && flag_tgl!=0 && flag_jam!=0 && flag_menit!=0 && local->tm_sec==0)
+		{
+			system(menjalankan);
+			sleep(3);
+		}
+	}
+	return NULL;
 }
 
-void buat_thread(char *filenya, int n)
+pthread_t tid[200];
+
+void make_t(char *file, int n)
 {
-    pthread_create(&(tid[n]), NULL, &doSomeThing, filenya);
+	printf("%s\n",file);
+	pthread_create(&(tid[n]), NULL, &MembacaCrontab, file);
 }
 
-void baca_isi()
+void membaca_file()
 {
-    char c;
-    char lama[1000];
-    FILE *fptr;
-    int angka=0;
-    fptr = fopen(filename, "r");
-    c = fgetc(fptr); 
-    while (c != EOF) 
-    {
-        lama[angka]=c;
-        angka++;
-        c = fgetc(fptr); 
-    } 
-    fclose(fptr);
-    lama[angka]='\0';
+	FILE *filenya;
+	char f;
+	filenya = fopen(filename, "r");
+	f = fgetc(filenya);
+	char cost_time[200];
+	int number=0;
+	while (f != EOF)
+	{
+		cost_time[number]=f;
+		number+=1;
+		f = fgetc(filenya);
+	}
+	fclose(filenya);
 
-    int init_size = strlen(lama);
-	char delim[] = "\n";
-    char *simpen[1000];
-    char semen[1000];
-    sprintf(semen, "%s", lama);
-	char *ptr = strtok(semen, delim);
+	cost_time[number]='\0';
+	char *save[200];
+	int next=0;
+	char *memisah = strtok(cost_time, "\n");
+	int size = strlen(cost_time);
 
-    while(ptr != NULL)
-    {
-        simpen[seq]=strdup(ptr);
-        ptr = strtok(NULL, delim);
-        seq++;    
-    }
-
-    for(int ii=0; ii<seq; ii++)
-    {
-        buat_thread(simpen[ii], ii);
-    }
+	while(memisah != NULL)
+	{
+		printf("%s\n",memisah);
+		save[next]=strdup(memisah);
+	}
+	
+	for (int i=0; i<next; i++)
+	{
+		printf("%s\n",save[i]);
+		make_t(save[i], i);
+	}
 }
 
-void kensel_thread(int n)
+
+int main()
 {
-    pthread_cancel(tid[n]);
-}
+	struct stat sb;
+	long int get_t;
+	stat(filename, &sb);
+	get_t=sb.st_mtime;
 
-int main() {
-    int err;
+	membaca_file();
+	
+	while(1)
+	{
+
+		stat(filename, &sb);
     
-    pid_t pid, sid;
-    struct stat sb;
-    long int gettime;
-    
-    stat(filename, &sb);
-    gettime=sb.st_mtime;
-
-    pid = fork();
-
-    baca_isi();
-
-    if (pid < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    if (pid > 0) {
-        exit(EXIT_SUCCESS);
-    }
-
-    umask(0);
-
-    sid = setsid();
-
-    if (sid < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    if ((chdir("/home/gede/")) < 0) {
-        exit(EXIT_FAILURE);
-    }
-
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
-
-    while(1) {
-        stat(filename, &sb);
-        printf("--%ld--%ld\n", gettime, sb.st_mtime);
-    
-        if(gettime<sb.st_mtime)
-        {
-            gettime=sb.st_mtime;
-            sleep(1);
-
-            for(int ii=0; ii<seq; ii++)
-            {
-                kensel_thread(ii);
-            }
-            seq=0;
-            baca_isi();
-            printf("yeay\n");
-        }
-        sleep(1);
-    }
-
-    exit(EXIT_SUCCESS);
+		if(get_t<sb.st_mtime)
+		{
+			for(int n=0; n<0; n++)
+			{
+				 pthread_cancel(tid[n]);
+			}
+			
+			membaca_file();
+		}
+		sleep(3);
+	}
 }
